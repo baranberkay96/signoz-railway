@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Listing name | **SigNoz v0.145 APM for Railway Apps** (version label `v0.145` = SigNoz 0.x major.minor) |
-| Description | Logs, traces and metrics in one place. OpenTelemetry-native Datadog alternative. (80 chars, unchanged from LISTINGS.md) |
+| Description | Logs, traces and metrics in one OpenTelemetry-native Datadog alternative. (80 chars, unchanged from LISTINGS.md) |
 | Category | Observability |
 | Tags | observability, apm, opentelemetry, tracing, logs, metrics, clickhouse |
 | Base market template | `signoz-1` (gridalpha, 5 services + Postgres, authenticated ingest) — structure only; source repo has no license, nothing copied. Also reviewed `signoz` (vendor, 175 projects) and `signoz-observability`. |
