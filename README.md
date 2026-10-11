@@ -1,6 +1,6 @@
 # Deploy and Host SigNoz with Railway
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/signoz-v0145-apm-for-railway-apps)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/signoz-v0145-apm-for-railway-apps?referralCode=20H68q)
 
 SigNoz is an open-source, OpenTelemetry-native observability platform for application traces, metrics and logs. This community template runs the complete self-hosted stack on Railway — UI, OTel Collector, ClickHouse and ClickHouse Keeper — so the other services in your project can send telemetry over the private network within minutes.
 
