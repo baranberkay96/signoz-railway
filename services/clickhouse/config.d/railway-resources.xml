@@ -1,0 +1,36 @@
+<!--
+  Resource profile for a single-node SigNoz telemetry store on Railway.
+  ClickHouse sizes caches from the memory it can see, which on Railway is the
+  plan limit, not what you want to pay for. These caps keep idle RAM and disk
+  growth predictable. Raise them if you ingest a lot of data.
+-->
+<clickhouse>
+    <mark_cache_size>536870912</mark_cache_size>                 <!-- 512 MiB -->
+    <index_mark_cache_size>268435456</index_mark_cache_size>     <!-- 256 MiB -->
+    <uncompressed_cache_size>268435456</uncompressed_cache_size> <!-- 256 MiB (only used when enabled per query) -->
+
+    <!-- Noisy internal system tables that SigNoz does not use. -->
+    <text_log remove="1"/>
+    <trace_log remove="1"/>
+    <query_thread_log remove="1"/>
+    <metric_log remove="1"/>
+    <query_metric_log remove="1"/>
+    <asynchronous_metric_log remove="1"/>
+    <instrumentation_trace_log remove="1"/>
+    <background_schedule_pool_log remove="1"/>
+    <processors_profile_log remove="1"/>
+
+    <!-- Keep the useful ones, but only for a few days. -->
+    <query_log>
+        <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+    </query_log>
+    <part_log>
+        <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+    </part_log>
+    <error_log>
+        <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+    </error_log>
+    <query_views_log>
+        <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+    </query_views_log>
+</clickhouse>

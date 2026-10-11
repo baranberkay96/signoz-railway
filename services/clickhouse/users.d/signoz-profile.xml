@@ -1,0 +1,14 @@
+<!--
+  Query-profile settings SigNoz expects on the default profile.
+  The `default` user itself (password, networks) is written at start-up by the
+  official image entrypoint from CLICKHOUSE_PASSWORD.
+-->
+<clickhouse>
+    <profiles>
+        <default>
+            <allow_simdjson>0</allow_simdjson>
+            <load_balancing>random</load_balancing>
+            <log_queries>1</log_queries>
+        </default>
+    </profiles>
+</clickhouse>

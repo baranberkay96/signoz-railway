@@ -1,0 +1,47 @@
+<!--
+  SigNoz-specific server settings, merged over the stock ClickHouse config.xml.
+  SigNoz issues DDL with ON CLUSTER `cluster` and (by default) creates
+  Replicated* tables, so a cluster definition, macros and a Keeper connection
+  are required even on a single node.
+-->
+<clickhouse>
+    <!-- Railway collects stdout/stderr; do not write log files inside the container. -->
+    <logger>
+        <level>information</level>
+        <console>1</console>
+        <log remove="1"/>
+        <errorlog remove="1"/>
+    </logger>
+
+    <!-- Single shard, single replica. The name must match SIGNOZ_*_CLICKHOUSE_CLUSTER. -->
+    <remote_servers>
+        <cluster>
+            <shard>
+                <replica>
+                    <host>localhost</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </cluster>
+    </remote_servers>
+
+    <macros>
+        <shard>00</shard>
+        <replica>00</replica>
+    </macros>
+
+    <!-- Keeper host comes from the CLICKHOUSE_KEEPER_HOST variable (private domain). -->
+    <zookeeper>
+        <node>
+            <host from_env="CLICKHOUSE_KEEPER_HOST"/>
+            <port>9181</port>
+        </node>
+    </zookeeper>
+
+    <distributed_ddl>
+        <path>/clickhouse/task_queue/ddl</path>
+    </distributed_ddl>
+
+    <!-- UDF binary is baked into the image, outside the /var/lib/clickhouse volume. -->
+    <user_scripts_path>/etc/clickhouse-server/user_scripts/</user_scripts_path>
+</clickhouse>

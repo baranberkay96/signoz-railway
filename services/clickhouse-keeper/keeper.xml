@@ -1,0 +1,50 @@
+<!--
+  Single-node ClickHouse Keeper for the SigNoz telemetry store.
+  The Raft member points at localhost, so the node forms its own quorum and
+  does not depend on its Railway hostname.
+-->
+<clickhouse>
+    <logger>
+        <level>information</level>
+        <console>1</console>
+    </logger>
+
+    <!-- Dual-stack: new Railway environments use IPv4+IPv6, legacy ones IPv6 only. -->
+    <listen_host>::</listen_host>
+    <listen_host>0.0.0.0</listen_host>
+    <listen_try>1</listen_try>
+
+    <keeper_server>
+        <tcp_port>9181</tcp_port>
+        <server_id>1</server_id>
+
+        <!-- Both paths are on the service volume (/var/lib/clickhouse-keeper). -->
+        <log_storage_path>/var/lib/clickhouse-keeper/coordination/log</log_storage_path>
+        <snapshot_storage_path>/var/lib/clickhouse-keeper/coordination/snapshots</snapshot_storage_path>
+
+        <coordination_settings>
+            <operation_timeout_ms>10000</operation_timeout_ms>
+            <session_timeout_ms>30000</session_timeout_ms>
+            <raft_logs_level>warning</raft_logs_level>
+            <snapshot_distance>100000</snapshot_distance>
+            <snapshots_to_keep>3</snapshots_to_keep>
+            <force_sync>false</force_sync>
+        </coordination_settings>
+
+        <!-- Readiness probe used by the Railway healthcheck (PORT=9182). -->
+        <http_control>
+            <port>9182</port>
+            <readiness>
+                <endpoint>/ready</endpoint>
+            </readiness>
+        </http_control>
+
+        <raft_configuration>
+            <server>
+                <id>1</id>
+                <hostname>localhost</hostname>
+                <port>9234</port>
+            </server>
+        </raft_configuration>
+    </keeper_server>
+</clickhouse>

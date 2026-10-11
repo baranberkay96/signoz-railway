@@ -1,0 +1,124 @@
+# SigNoz OpenTelemetry Collector (ingest tier) for Railway.
+#
+# Two sets of OTLP listeners:
+#   otlp         :4317 gRPC / :4318 HTTP   private network only, no auth
+#                                          (other services in this Railway project)
+#   otlp/public  :14317 gRPC / :14318 HTTP exposed via TCP proxy / public domain,
+#                                          requires "Authorization: Bearer <OTLP_PUBLIC_TOKEN>"
+#
+# ClickHouse credentials are read from ${env:CLICKHOUSE_DSN}; nothing secret is
+# written into this file.
+
+extensions:
+  signoz_health_check:
+    endpoint: "[::]:13133"
+  pprof:
+    endpoint: "127.0.0.1:1777"
+  bearertokenauth/public:
+    scheme: "Bearer"
+    token: "${env:OTLP_PUBLIC_TOKEN}"
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "[::]:4317"
+      http:
+        endpoint: "[::]:4318"
+  otlp/public:
+    protocols:
+      grpc:
+        endpoint: "[::]:14317"
+        auth:
+          authenticator: bearertokenauth/public
+      http:
+        endpoint: "[::]:14318"
+        auth:
+          authenticator: bearertokenauth/public
+
+connectors:
+  signozmeter:
+    metrics_flush_interval: 1h
+    dimensions:
+      - name: service.name
+      - name: deployment.environment
+      - name: host.name
+
+processors:
+  batch:
+    send_batch_size: 50000
+    send_batch_max_size: 55000
+    timeout: 5s
+  batch/meter:
+    send_batch_size: 20000
+    send_batch_max_size: 25000
+    timeout: 5s
+  signozspanmetrics/delta:
+    metrics_exporter: signozclickhousemetrics
+    metrics_flush_interval: 60s
+    aggregation_temporality: AGGREGATION_TEMPORALITY_DELTA
+    enable_exp_histogram: true
+    dimensions_cache_size: 100000
+    latency_histogram_buckets:
+      [100us, 1ms, 2ms, 6ms, 10ms, 50ms, 100ms, 250ms, 500ms, 1000ms, 1400ms, 2000ms, 5s, 10s, 20s, 40s, 60s]
+    dimensions:
+      - name: service.namespace
+        default: default
+      - name: deployment.environment
+        default: default
+      - name: signoz.collector.id
+      - name: service.version
+
+exporters:
+  clickhousetraces:
+    datasource: ${env:CLICKHOUSE_DSN}/signoz_traces
+    low_cardinal_exception_grouping: ${env:LOW_CARDINAL_EXCEPTION_GROUPING}
+    use_new_schema: true
+    timeout: 45s
+    sending_queue:
+      enabled: false
+  signozclickhousemetrics:
+    dsn: ${env:CLICKHOUSE_DSN}/signoz_metrics
+    timeout: 45s
+    sending_queue:
+      enabled: false
+  clickhouselogsexporter:
+    dsn: ${env:CLICKHOUSE_DSN}/signoz_logs
+    use_new_schema: true
+    timeout: 45s
+    sending_queue:
+      enabled: false
+  signozclickhousemeter:
+    dsn: ${env:CLICKHOUSE_DSN}/signoz_meter
+    timeout: 45s
+    sending_queue:
+      enabled: false
+  metadataexporter:
+    enabled: true
+    dsn: ${env:CLICKHOUSE_DSN}/signoz_metadata
+    timeout: 45s
+    cache:
+      provider: in_memory
+
+service:
+  telemetry:
+    logs:
+      encoding: json
+  extensions: [signoz_health_check, pprof, bearertokenauth/public]
+  pipelines:
+    traces:
+      receivers: [otlp, otlp/public]
+      processors: [signozspanmetrics/delta, batch]
+      exporters: [clickhousetraces, signozmeter, metadataexporter]
+    metrics:
+      receivers: [otlp, otlp/public]
+      processors: [batch]
+      exporters: [signozclickhousemetrics, signozmeter, metadataexporter]
+    logs:
+      receivers: [otlp, otlp/public]
+      processors: [batch]
+      exporters: [clickhouselogsexporter, signozmeter, metadataexporter]
+    metrics/meter:
+      receivers: [signozmeter]
+      processors: [batch/meter]
+      exporters: [signozclickhousemeter]
