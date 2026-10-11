@@ -50,7 +50,7 @@ OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 OTEL_SERVICE_NAME=${{RAILWAY_SERVICE_NAME}}
 ```
 
-and start the app with your language's OpenTelemetry auto-instrumentation. For gRPC use port `4317`. From outside Railway, use `https://<otel-collector domain>` and the header `Authorization=Bearer <OTLP_PUBLIC_TOKEN>`.
+and start the app with your language's OpenTelemetry auto-instrumentation. For gRPC use port `4317`. From outside Railway, use `https://{otel-collector domain}` and the header `Authorization=Bearer {OTLP_PUBLIC_TOKEN}`.
 
 **Scaling.** The collector is stateless: raise its replica count when ingest grows. Give ClickHouse more memory/CPU for heavier queries, and set data retention in Settings → General to fit the ClickHouse volume.
 
