@@ -1,8 +1,8 @@
-# SigNoz v0.145 APM for Railway Apps — composer spec
+# SigNoz APM for Railway Apps — composer spec
 
 | Field | Value |
 |---|---|
-| Listing name | **SigNoz v0.145 APM for Railway Apps** (version label `v0.145` = SigNoz 0.x major.minor) |
+| Listing name | **SigNoz APM for Railway Apps** (version label `v0.145` = SigNoz 0.x major.minor) |
 | Description | Logs, traces and metrics in one OpenTelemetry-native Datadog alternative. (80 chars, unchanged from LISTINGS.md) |
 | Category | Observability |
 | Tags | observability, apm, opentelemetry, tracing, logs, metrics, clickhouse |

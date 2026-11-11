@@ -1,5 +1,6 @@
 {
-  "name": "SigNoz v0.145 APM for Railway Apps",
+  "name": "SigNoz APM for Railway Apps",
+  "idSeed": "SigNoz v0.145 APM for Railway Apps",
   "description": "Logs, traces and metrics in one OpenTelemetry-native Datadog alternative.",
   "category": "Observability",
   "tags": [
